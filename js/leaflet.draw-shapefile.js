@@ -1,0 +1,133 @@
+/* 	Extension to Leaflet.draw 0.4.9.
+	Dependencies: Leaflet.draw, Leaflet.shapefile w/ shp.js,
+	Add a button to the draw toolbar to import a shapefile
+*/
+
+L.Control.DrawPlus = L.Control.Draw.extend({
+	
+	options: {
+		draw: { 
+			shapefile: {
+				stroke: true,
+				color: '#3388ff',
+				weight: 4,
+				opacity: 0.5,
+				fill: true,
+				fillColor: null, //same as color by default
+				fillOpacity: 0.2,
+				clickable: true
+			}
+		}
+	},
+	
+	initialize: function(options) {
+		this._setOptions(options);
+        L.Control.Draw.prototype.initialize.call(this, options);
+    },
+        
+	onAdd: function(map) {
+		var container = L.Control.Draw.prototype.onAdd.call(this,map);
+		var drawContainer = container.getElementsByClassName('leaflet-draw-toolbar-top')[0];
+		
+		if (this.options.draw.shapefile){
+				this._addShapefileButton(map, drawContainer);
+		}
+
+        return container;
+    },
+    
+    _addShapefileButton: function(map, drawContainer){
+
+    	var shapefileNode = document.createElement("a");                 
+		shapefileNode.setAttribute('class','leaflet-draw-draw-shapefile');
+		shapefileNode.setAttribute('href','#');
+		shapefileNode.setAttribute('title','Upload a shapefile (.zip)');
+	
+		var inputNode = document.createElement('input');
+			inputNode.setAttribute('type','file');
+			inputNode.setAttribute('id','leaflet-draw-shapefile-selector');
+			inputNode.setAttribute('accept','.zip');
+			
+			inputNode.addEventListener('change', function(e){
+				var files = inputNode.files;
+				if (files.length == 0) {
+					return; //No file selected. Cancel.
+				}
+				
+				var file = files[0];
+				var reader = new FileReader();
+				reader.onload = function() {
+					if (reader.readyState !== 2 || reader.error) {
+						return;
+					} else {
+						L.toolbar._handleShapefile(map, reader.result);
+					}
+				};
+				reader.readAsArrayBuffer(file);
+			});
+			
+		var btnNode = document.createElement('div');
+			btnNode.setAttribute('id','leaflet-draw-draw-shapefile-btn');
+			btnNode.addEventListener('click',function(){
+				inputNode.click();
+			});
+	
+		shapefileNode.appendChild(inputNode);    
+		shapefileNode.appendChild(btnNode);
+	
+		drawContainer.appendChild(shapefileNode);
+
+    },
+    
+    //Want to fire one created event per shape in the zip. Handle multiple files inside the zip.
+    _handleShapefile: function(map, buffer){
+    	var styleOptions = this.options.draw.shapefile.shapeOptions;
+    	shp(buffer).then(function(geojson){
+    		if (!Array.isArray(geojson)){ //only one file, so it doesn't fit my format for multi-file
+    			geojson = [geojson];
+			}
+    		for (var i = 0; i < geojson.length; i++){ //Loop through each file in the zip
+    			var featureCollection = L.geoJson(geojson[i], {
+					style: function(feature) { return styleOptions;}
+    			});
+    			var fileName = geojson[i].fileName;
+    			var j = 1;
+    			featureCollection.eachLayer(function(layer){
+    				layer.options.title = fileName+"/"+j++;
+					map.fire(L.Draw.Event.CREATED, { layer: layer, layerType: 'shapefile'});
+				});
+				featureCollection.eachLayer(function(layer) {
+					var l = layer.feature.properties;
+					var x = Object.keys(l);
+					for (i=0; i<x.length; i++) {
+					  if(i==0){
+						layer.bindPopup(`${x[0]}: ${l[x[0]]}`);
+					  }else if(i==1){
+						layer.bindPopup(`${x[0]}: ${l[x[0]]}<br />${x[1]}: ${l[x[1]]}`);
+					  }else if(i==2){
+						layer.bindPopup(`${x[0]}: ${l[x[0]]}<br />${x[1]}: ${l[x[1]]}<br />${x[2]}: ${l[x[2]]}`);
+					  }else if(i==3){
+						layer.bindPopup(`${x[0]}: ${l[x[0]]}<br />${x[1]}: ${l[x[1]]}<br />${x[2]}: ${l[x[2]]}<br />${x[3]}: ${l[x[3]]}`);
+					  }else{
+						layer.bindPopup(`${x[0]}: ${l[x[0]]}<br />${x[1]}: ${l[x[1]]}<br />${x[2]}: ${l[x[2]]}<br />${x[3]}: ${l[x[3]]}<br />${x[4]}: ${l[x[4]]}`);
+					  }
+					}
+				  });
+			}
+			map.fitBounds(featureCollection.getBounds());
+     	});
+    },
+        
+    //Merge my options for the shapefile if needed. Not sure how they do it normally
+    _setOptions(options) {
+		if (options.draw.shapefile){
+			if (options.draw.shapefile == true){
+				options.draw.shapefile = this.options.draw.shapefile;
+			} else {
+				Object.assign(options.draw.shapefile, this.options.draw.shapefile);
+			}
+		}
+    }
+
+
+});
