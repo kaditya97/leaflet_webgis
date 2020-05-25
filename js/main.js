@@ -103,17 +103,18 @@ var drawControl = new L.Control.Draw({
 		     shapeOptions: {
 		      color: 'steelblue'
 		     },
-		    },
+        },
+        marker: false
 		   },
         edit: {
-             featureGroup: drawnItems
+             featureGroup: drawnItems,
+             edit: false,
+             remove: false
          }
      });
 map.addControl(drawControl);
 map.on('draw:created', function (e) {
-            var type = e.layerType,
-                layer = e.layer;
-            drawnItems.addLayer(layer);
+            drawnItems.addLayer(e.layer);
         });
 map.on(L.Draw.Event.CREATED, function (e) {
 		var type = e.layerType,
@@ -155,6 +156,11 @@ function userLocation() {
 L.easyButton('fa-crosshairs fa-lg', function(){
     userLocation();
 },'Get Your Location').addTo(map);
+
+// Building view
+L.easyButton('fa-home fa-lg', function(){
+  osmb = new OSMBuildings(map).load('https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'); 
+},"Show 2.5D Buildings",'topleft').addTo(map);
 
 // Full Screen Toogle
 function fullScreen() {
@@ -236,10 +242,11 @@ function popUp(geo){
   });
 }
 
+var geo;
 function geoJsonData(file){
   var reader = new FileReader();
   reader.onload = function() {
-    var geo = omnivore.geojson(reader.result)
+    geo = omnivore.geojson(reader.result)
       .on('ready',function(){
         popUp(geo);
       })
@@ -251,7 +258,7 @@ function geoJsonData(file){
 function gpxData(file){
   var reader = new FileReader();
   reader.onload = function() {
-    var geo = omnivore.gpx(reader.result)
+    geo = omnivore.gpx(reader.result)
       .on('ready', function() {
         popUp(geo);
        })
@@ -263,7 +270,7 @@ function gpxData(file){
 function csvData(file){
   var reader = new FileReader();
   reader.onload = function() {
-    var geo = omnivore.csv.parse(reader.result).addTo(map);
+    geo = omnivore.csv.parse(reader.result).addTo(map);
     popUp(geo);
   };
   reader.readAsText(file);
@@ -272,7 +279,7 @@ function csvData(file){
 function kmlData(file){
   var reader = new FileReader();
   reader.onload = function() {
-    var geo = omnivore.kml.parse(reader.result).addTo(map);
+    geo = omnivore.kml.parse(reader.result).addTo(map);
     popUp(geo);
   };
   reader.readAsText(file);
@@ -281,7 +288,7 @@ function kmlData(file){
 function wktData(file){
   var reader = new FileReader();
   reader.onload = function() {
-    var geo = omnivore.wkt.parse(reader.result).addTo(map);
+    geo = omnivore.wkt.parse(reader.result).addTo(map);
     popUp(geo);
   };
   reader.readAsText(file);
@@ -319,7 +326,7 @@ L.easyButton('fa-globe fa-lg', function(){
   vectorData();
 },"Add Vector Layers",'topright').addTo(map);
 
-  var drawLayers = new L.FeatureGroup();
+  var drawnItems = new L.FeatureGroup();
 	var drawControl = new L.Control.DrawPlus({
 		position: 'topright',		
 		draw: {
@@ -327,10 +334,9 @@ L.easyButton('fa-globe fa-lg', function(){
       circle: false,
       rectangle: false,
       polyline: false,
-      marker: false,
 			shapefile: {
 				shapeOptions:{
-			    	color: 'black',
+			    	color: 'blue',
 			    	weight: 3,
 			    	opacity: 1,
 			    	fillOpacity: 0					
@@ -339,19 +345,62 @@ L.easyButton('fa-globe fa-lg', function(){
 			geojson: true,   //Could have options if needed.
 		},
 		edit: {
-			featureGroup: drawLayers,
-			edit: false
-		}
+			featureGroup: drawnItems
+    }
 	});
 	
-	map.addLayer(drawLayers);
+	map.addLayer(drawnItems);
 	map.addControl(drawControl);
 	
 	map.on(L.Draw.Event.CREATED, function(e){
-    drawLayers.addLayer(e.layer);
+    drawnItems.addLayer(e.layer);
+    var type = e.layerType,
+			layer = e.layer;
+		if (type === 'marker') {
+      var cord = layer.getLatLng().toString();
+			layer.bindPopup(cord).openPopup();
+		}
+    map.addLayer(layer);
 	});
 	
-	drawLayers.on('click',function(e){
+	drawnItems.on('click',function(e){
     return;
   });
+
+  // Remove features
+  document.getElementById('delete').onclick = function() {
+    drawnItems.clearLayers();
+    if(geo){
+      geo.clearLayers();
+    }
+  }
+
+  document.getElementById('export').onclick = function() {
+    var data;
+    // Extract GeoJson from featureGroup
+    if (geo){data = geo.toGeoJSON();}
+    else{data = drawnItems.toGeoJSON();}
   
+    // Stringify the GeoJson
+    var convertedData = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
+
+    // Create export
+    document.getElementById('export').setAttribute('href', 'data:' + convertedData);
+    document.getElementById('export').setAttribute('download','data.geojson');
+  }
+  L.easyButton('fa-download fa-lg', function(){
+    document.getElementById('export').click();
+  },"Export As Geojson",'topright').addTo(map);
+
+  L.easyButton('fa-refresh fa-lg', function(){
+    document.getElementById('delete').click();
+  },"Clear Map",'topright').addTo(map);
+  
+  L.easyButton('fa-info fa-lg', function(){
+    var info = document.getElementById('info');
+    if(info.style.display=="block"){
+      info.style.display = "none";
+    }else{
+      info.style.display = "block";
+    }
+  },"Info","topleft").addTo(map);

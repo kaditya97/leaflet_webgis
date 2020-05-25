@@ -40,3 +40,18 @@ body {
   a, a:visited, a:hover, a:active, a:focus {
     text-decoration: none;
   }
+#delete, #export {
+    display: none;
+}
+#info{
+  display: none;
+  z-index: 10000;
+  height: 80vh;
+  width: 80vw;
+  background-color: aqua;
+  position: absolute;
+  left: 50%;
+  margin-left: -40vw;
+  top: 50%;
+  margin-top: -40vh;
+}
