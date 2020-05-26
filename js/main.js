@@ -339,7 +339,7 @@ L.easyButton('fa-globe fa-lg', function(){
 			    	color: 'blue',
 			    	weight: 3,
 			    	opacity: 1,
-			    	fillOpacity: 0					
+			    	fillOpacity: 0.1					
 				}
 		  }, //Turn on my custom extension
 			geojson: true,   //Could have options if needed.
