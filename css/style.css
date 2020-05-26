@@ -16,27 +16,7 @@ body {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2 {
-    margin: 20px 0 0;
-    font-size: 1.4em;
-    font-weight: normal;
-    line-height: 1;
-  }
-  h1 {
-    display: inline-block;
-    font-size: 1.4em;
-  }
-  h2 {
-    font-size: 1.1em;
-  }
-  pre {
-    line-height: 1.5em;
-  }
-  p.github {
-    display: inline-block;
-    margin: 20px 0 0 20px;
-    font-size: 1.2em;
-  }
+
   a, a:visited, a:hover, a:active, a:focus {
     text-decoration: none;
   }
@@ -48,10 +28,33 @@ body {
   z-index: 10000;
   height: 80vh;
   width: 80vw;
-  background-color: aqua;
+  background-color: whitesmoke;
+  -webkit-box-shadow: 10px 10px 36px 0px rgba(0,0,0,0.88);
+  -moz-box-shadow: 10px 10px 36px 0px rgba(0,0,0,0.88);
+  box-shadow: 10px 10px 36px 0px rgba(0,0,0,0.88);
   position: absolute;
   left: 50%;
   margin-left: -40vw;
   top: 50%;
   margin-top: -40vh;
+}
+#top{
+  margin: 5px;
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+}
+#close img{
+  color: red;
+  cursor: pointer;
+}
+iframe{
+  margin-top: 2.4rem;
+  overflow: hidden;
+  border: 0;
+  height: calc(80vh - 2.4rem);
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
 }

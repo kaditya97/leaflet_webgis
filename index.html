@@ -23,7 +23,13 @@
     <div id="map">
     <button id='delete'>Delete Features</button>
     <a href='#' id='export'>Export Features</a>
-    <div id="info"></div>
+    <div id="info">
+        <div id="top">
+            <h2>Information</h2>
+            <div id="close" onclick="iframe()"><img src="css/images/close.svg" height="24px" width="24px"></div>
+        </div>
+        <hr />
+        <iframe src="info.html"></iframe>
     </div>
     <script src="js/mousePosition.js"></script>
     <script src="js/Control.OSMGeocoder.js"></script>

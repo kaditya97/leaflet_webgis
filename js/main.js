@@ -396,11 +396,15 @@ L.easyButton('fa-globe fa-lg', function(){
     document.getElementById('delete').click();
   },"Clear Map",'topright').addTo(map);
   
-  L.easyButton('fa-info fa-lg', function(){
+  function iframe(){
     var info = document.getElementById('info');
     if(info.style.display=="block"){
       info.style.display = "none";
     }else{
       info.style.display = "block";
     }
+  }
+
+  L.easyButton('fa-info fa-lg', function(){
+    iframe();
   },"Info","topleft").addTo(map);
