@@ -1,0 +1,20 @@
+{
+  "name": "leaflet_webgis",
+  "short_name": "leaflet_webgis",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "leaflet webgis pwa",
+  "icons": [
+    {
+      "src": "images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
