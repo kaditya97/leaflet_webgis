@@ -162,6 +162,37 @@ L.easyButton('fa-home fa-lg', function(){
   osmb = new OSMBuildings(map).load('https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json'); 
 },"Show 2.5D Buildings",'topleft').addTo(map);
 
+// Latitude and Longitude Viewer
+var markers = 0;
+function addMarker(id){
+  var lat = document.getElementById(`lat_${id}`).value;
+  var lng = document.getElementById(`lng_${id}`).value;
+  var marker = L.marker([lat,lng]).addTo(map);
+  markers = markers + 1;
+  marker.bindPopup(`longitude: ${ lng } | latitude: ${ lat }`).openPopup();
+  map.setView([lat,lng],12);
+}
+
+function latlngviewer() {
+  var latlng = map.getCenter();
+  var lat = latlng.lat;
+  var lng = latlng.lng;
+  function makeHtml(id) {
+    return `<label for="lat_${id}">Lat:</label><input type="number" value id="lat_${id}" /><br /><label for="lng_${id}">Lng:</label><input type="number" value="" id="lng_${id}" /><br /><center><button style="cursor: pointer" onclick="addMarker(${id})">Add Marker</button></center>`;
+  }
+  L.popup({
+    closeButton: true,
+    autoClose: false,
+    closeOnClick: false
+  })
+  .setLatLng([lat, lng])
+  .setContent(makeHtml(markers)).addTo(map);
+}
+
+L.easyButton('fa-location-arrow fa-lg', function(){
+  latlngviewer();
+},"Latitude and Longitude Viewer",'topleft').addTo(map);
+
 // Full Screen Toogle
 function fullScreen() {
     let e = document,
