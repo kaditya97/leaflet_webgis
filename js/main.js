@@ -409,7 +409,7 @@ L.easyButton('fa-globe fa-lg', function(){
   document.getElementById('export').onclick = function() {
     var data;
     // Extract GeoJson from featureGroup
-    if (geo){data = geo.toGeoJSON();}
+    if (geo){drawnItems.addLayer(geo);data = drawnItems.toGeoJSON();}
     else{data = drawnItems.toGeoJSON();}
   
     // Stringify the GeoJson
